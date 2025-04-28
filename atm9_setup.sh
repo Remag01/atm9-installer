@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# ATM9 Server Auto-Installer
-# Works on Ubuntu 22.04+, Amazon Linux 2
+# ATM9 Server Auto-Installer (fixed version)
 
 echo "Updating server..."
 sudo apt update && sudo apt upgrade -y
@@ -23,10 +22,22 @@ rm atm9_server.zip
 echo "Accepting EULA..."
 echo "eula=true" > eula.txt
 
+echo "Running Forge installer..."
+chmod +x ./startserver.sh
+./startserver.sh --installServer
+
+echo "Finding Forge server jar..."
+FORGE_JAR=$(ls forge-*-universal.jar | head -n 1)
+
+if [ -z "$FORGE_JAR" ]; then
+  echo "Forge jar not found! Exiting."
+  exit 1
+fi
+
 echo "Making start script..."
 cat <<EOL > start.sh
 #!/bin/bash
-java -Xms6G -Xmx6G -jar forge-*.jar nogui
+java -Xms6G -Xmx6G -jar $FORGE_JAR nogui
 EOL
 chmod +x start.sh
 
